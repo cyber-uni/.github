@@ -35,3 +35,15 @@ it, and how a release is cut. Keep it the one home for those facts.
   calling it a minor or patch release.
 - Comments record why a line is the way it is, including the incident that taught
   it. Keep them; update them when the reason changes.
+
+## The glyph
+
+The org mark is a lowercase `u` with the four-point AI spark above it, inside the shared
+cyber-* frame (`docs/design/icon-system.md` in `cyberuni/cyber-mux`): *uni*, and agents.
+It was candidate C of four; the others were the cyber-civitas citizens, a plug with the
+spark, and the spark alone.
+
+`brand/` holds one drawing in five files: `logo.svg` (self-theming), `logo-light.svg` and
+`logo-dark.svg` (ink `#10111a` and `#f7f8f8`), and the org avatar renders
+`org-avatar-light.png` and `org-avatar-dark.png` (512px, rendered from the pair). GitHub
+takes only raster images for an avatar, so those stay PNG. A glyph change touches all five.
