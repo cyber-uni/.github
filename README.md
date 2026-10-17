@@ -120,15 +120,21 @@ the actions from `v1` too. A new major updates these refs in the same release.
 
 ## Organization setup
 
-These settings live outside any file, so they are listed here:
+These settings live outside any file, so they are listed here. Each line says whether
+it is in place yet.
 
+- **Discussions:** on in this repository, which is the organization's discussion
+  source. *Done.*
 - **Code scanning:** CodeQL default setup, enabled for all repositories at the
-  organization level. No workflow needed.
+  organization level. No workflow needed. *Not yet.*
 - **Private vulnerability reporting:** on for every repository, so the security
-  policy's **Report a vulnerability** button exists.
+  policy's **Report a vulnerability** button exists. *Not yet.*
 - **Codecov:** the Codecov GitHub App installed on the organization. Uploads
-  authenticate with OIDC.
+  authenticate with OIDC. *Not yet.*
 - **Renovate:** the Renovate GitHub App installed on the organization. Each
-  repository extends `github>unional/renovate-preset`.
+  repository extends `github>unional/renovate-preset`. *Not yet.*
 - **Merge queue and auto-merge:** on in each repository's ruleset, with
-  `all-checks` required.
+  `all-checks` required. *Per repository, as each one moves in.*
+- **Release tags:** the workflows above resolve `@v1`. Cut `v1.0.0` and the `v1`
+  alias (see [Cutting a release](#cutting-a-release)) before the first consumer
+  calls them. *Not yet.*
