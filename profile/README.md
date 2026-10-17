@@ -18,6 +18,6 @@ Cursor, Codex, and GitHub Copilot CLI from one package.
 [cyber-civitas](https://github.com/cyber-civitas) under their new names. Until each one
 lands, it ships under its old name from its old home.
 
-**Read more:** [cyber-civitas.github.io](https://cyber-civitas.github.io) covers the
+**Read more:** [cyberuni-agent.github.io](https://cyberuni-agent.github.io) covers the
 architecture, each component's status, and the
-[decisions](https://cyber-civitas.github.io/decisions/) behind this organization.
+[decisions](https://cyberuni-agent.github.io/decisions/) behind this organization.
