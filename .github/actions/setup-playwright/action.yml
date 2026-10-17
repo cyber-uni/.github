@@ -1,0 +1,60 @@
+name: Setup Playwright
+description: Install the Playwright browsers matching the repo's own Playwright version, with caching
+# Runs AFTER `pnpm install`, and resolves Playwright through `pnpm exec`. Both are
+# load-bearing. `pnpx playwright install` resolves Playwright from the registry, so it
+# downloads browsers for the latest release while the tests run against the pinned one:
+#
+#   browserType.launch: Executable doesn't exist at
+#   ~/.cache/ms-playwright/chromium_headless_shell-1208/...
+#
+# Skips cleanly when the repo has no Playwright, so callers can leave it on.
+inputs:
+  browsers:
+    description: Space-separated browsers to install, e.g. 'chromium' or 'chromium webkit'
+    required: false
+    default: chromium
+runs:
+  using: composite
+  steps:
+    - name: Detect Playwright
+      id: detect
+      shell: bash
+      run: |
+        version=$(pnpm exec playwright --version 2>/dev/null | grep -oE '[0-9]+(\.[0-9]+)+' || true)
+        if [ -z "$version" ]; then
+          echo "Playwright not found in this repo; skipping browser install."
+          echo "version=" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+        if [ "$RUNNER_OS" = "Windows" ]; then
+          cache_path="$LOCALAPPDATA/ms-playwright"
+        else
+          cache_path="$HOME/.cache/ms-playwright"
+        fi
+        echo "Playwright $version, browsers at $cache_path"
+        echo "version=$version" >> "$GITHUB_OUTPUT"
+        echo "cache-path=$cache_path" >> "$GITHUB_OUTPUT"
+
+    - name: Cache browsers
+      id: cache
+      if: steps.detect.outputs.version != ''
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ steps.detect.outputs.cache-path }}
+        key: ${{ runner.os }}-playwright-${{ steps.detect.outputs.version }}-${{ inputs.browsers }}
+
+    # On a cache hit the browsers are restored, but Linux still needs the system
+    # libraries they link against, which live outside the cache.
+    - name: Install browsers
+      if: steps.detect.outputs.version != '' && steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: pnpm exec playwright install --with-deps $BROWSERS
+      env:
+        BROWSERS: ${{ inputs.browsers }}
+
+    - name: Install system dependencies
+      if: steps.detect.outputs.version != '' && steps.cache.outputs.cache-hit == 'true' && runner.os == 'Linux'
+      shell: bash
+      run: pnpm exec playwright install-deps $BROWSERS
+      env:
+        BROWSERS: ${{ inputs.browsers }}

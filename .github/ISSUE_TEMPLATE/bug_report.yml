@@ -1,0 +1,48 @@
+name: Bug report
+description: Something does not work as documented
+type: Bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Report a security vulnerability privately from the **Security** tab, not here.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you saw, including the exact error output.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: The smallest set of steps or commands that shows the problem.
+      placeholder: |
+        1. Run `...`
+        2. See `...`
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Package version
+      placeholder: 1.2.3
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Node version, package manager, and the agent harness (Claude Code, Cursor, Codex) if one is involved.
+      placeholder: |
+        - OS: Ubuntu 24.04 (WSL2)
+        - Node: 24.10.0
+        - pnpm: 10.18.0
+        - Harness: Claude Code 2.3.0

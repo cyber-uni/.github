@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or idea
+    url: https://discord.gg/RwzcFpN5fv
+    about: Ask in the Discord #general channel.
+  - name: Architecture and component status
+    url: https://cyber-civitas.github.io
+    about: How the packages fit together, and what state each one is in.

@@ -1,0 +1,138 @@
+name: pnpm-release
+# Versions and publishes a pnpm workspace with changesets, without long-lived secrets.
+#
+# - GitHub: the built-in GITHUB_TOKEN, no PAT. The Version Packages PR it opens
+#   triggers no `on: pull_request` workflows, which is fine for a mechanical version
+#   bump. A repo that wants checks there uses a merge queue with `merge_group:`.
+# - npm: trusted publishing (OIDC), which also emits provenance. Register a trusted
+#   publisher at npmjs.com/package/<name>/access for each package, naming the repo
+#   and the CALLER's workflow file (release.yml), not this file.
+#
+# Requires @changesets/cli v3. changesets/action v2 refuses to run against CLI v2.
+#
+# Caller permissions: `contents: write`, `pull-requests: write`, `id-token: write`.
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        type: string
+        required: false
+        default: lts/*
+      build-script:
+        description: Builds every publishable package. The publish gate packs its output.
+        type: string
+        required: false
+        default: pnpm run build
+      version-script:
+        type: string
+        required: false
+        default: pnpm run version
+      publish-script:
+        type: string
+        required: false
+        default: pnpm run release
+      publish-gate:
+        description: Block the release on files that must not ship or on unexpected new runtime dependencies
+        type: boolean
+        required: false
+        default: true
+      allowed-new-dependencies:
+        description: Passed to the publish gate. Newline- or comma-separated names or `@scope/*` patterns.
+        type: string
+        required: false
+        default: ''
+    outputs:
+      published:
+        description: Whether packages were published
+        value: ${{ jobs.release.outputs.published }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # Runs on every push to the default branch, including the ones that only open or
+  # update the Version Packages PR. It fails closed, and surfaces a bad tarball one
+  # merge earlier.
+  publish-gate:
+    if: inputs.publish-gate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # npm pack reports what would ship from the working tree, so the build output
+      # must exist, or the gate inspects an empty package and calls it clean.
+      - run: eval "$BUILD_SCRIPT"
+        env:
+          BUILD_SCRIPT: ${{ inputs.build-script }}
+      - uses: cyberuni-agent/.github/.github/actions/publish-gate@v1
+        with:
+          allowed-new-dependencies: ${{ inputs.allowed-new-dependencies }}
+
+  release:
+    needs: [publish-gate]
+    # Run when the gate passed or was turned off, never when it failed or was cancelled.
+    if: ${{ !cancelled() && (needs.publish-gate.result == 'success' || needs.publish-gate.result == 'skipped') }}
+    runs-on: ubuntu-latest
+    permissions:
+      # Mints the OIDC token npm exchanges for short-lived publish credentials.
+      id-token: write
+      # Lets changesets/action push the version branch and tags.
+      contents: write
+      # Lets changesets/action open the Version Packages PR.
+      pull-requests: write
+    outputs:
+      published: ${{ steps.changesets.outputs.published }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      # No `registry-url:` on purpose. It writes an `_authToken=${NODE_AUTH_TOKEN}`
+      # stanza that a secretless run can never fill. `changeset publish` then cannot
+      # tell which versions are already on the registry, republishes one, and dies on
+      # E403 "You cannot publish over the previously published versions".
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: pnpm
+
+      # Trusted publishing needs npm 11.5.1 or later, newer than some Node LTS ships.
+      # Pinned to 11, not latest: npm 12 wraps `npm info --json` in an array
+      # (changesets/changesets#2164), and @changesets/cli's pnpm code path still reads
+      # `.versions` off the unwrapped object, so every release fails in
+      # getUnpublishedPackages. Revisit when that parser handles the array.
+      - name: Install npm 11
+        run: |
+          npm install -g npm@11
+          npm --version
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: eval "$BUILD_SCRIPT"
+        env:
+          BUILD_SCRIPT: ${{ inputs.build-script }}
+
+      # changesets/action v2 renamed its inputs (version -> version-script,
+      # publish -> publish-script, commit -> commit-message, title -> pr-title).
+      # It rejects `title` outright, but older v2 releases ignored the other old
+      # names without an error and ran with no publish script.
+      - name: Open the Version Packages PR or publish
+        id: changesets
+        uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
+        with:
+          commit-message: 'chore: version packages'
+          pr-title: 'chore: version packages'
+          version-script: ${{ inputs.version-script }}
+          publish-script: ${{ inputs.publish-script }}

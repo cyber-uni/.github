@@ -1,0 +1,7 @@
+{
+	"name": "pnpm deploy to GitHub Pages",
+	"description": "Build a static site with pnpm and deploy it to GitHub Pages.",
+	"iconName": "octicon browser",
+	"categories": ["Pages", "TypeScript", "JavaScript"],
+	"filePatterns": ["astro\\.config\\.(mjs|ts)$"]
+}

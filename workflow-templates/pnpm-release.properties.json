@@ -1,0 +1,7 @@
+{
+	"name": "pnpm release (changesets)",
+	"description": "Version and publish with changesets and npm trusted publishing, behind a publish gate. Save as release.yml.",
+	"iconName": "octicon package",
+	"categories": ["TypeScript", "JavaScript"],
+	"filePatterns": ["pnpm-lock\\.yaml$"]
+}

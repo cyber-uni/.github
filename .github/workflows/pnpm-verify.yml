@@ -1,0 +1,103 @@
+name: pnpm-verify
+# Runs the repo's verify script across an OS x Node matrix, uploads coverage once,
+# and rolls the matrix up into one `all-checks` job to require in branch protection.
+#
+# Caller permissions: `contents: read`, plus `id-token: write` when `codecov` is on.
+on:
+  workflow_call:
+    inputs:
+      os:
+        description: JSON array of runner labels
+        type: string
+        required: false
+        default: '["ubuntu-latest", "macos-latest", "windows-latest"]'
+      node-version:
+        description: JSON array of actions/setup-node version specs
+        type: string
+        required: false
+        default: '["lts/-1", "lts/*"]'
+      script:
+        description: The package.json script that runs the whole gate
+        type: string
+        required: false
+        default: verify
+      playwright-browsers:
+        description: Browsers to install when the repo depends on Playwright. Empty skips the install.
+        type: string
+        required: false
+        default: chromium
+      codecov:
+        description: Upload coverage to Codecov from one leg
+        type: boolean
+        required: false
+        default: true
+      codecov-node-version:
+        description: >-
+          The matrix Node version whose ubuntu-latest leg uploads coverage. Must be a
+          value in `node-version`, or nothing uploads.
+        type: string
+        required: false
+        default: lts/*
+
+jobs:
+  verify:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      # Report every leg. Fail-fast cancels the rest on the first failure, and the
+      # cancelled legs carry no error of their own, which hides which ones are broken.
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(inputs.os) }}
+        node-version: ${{ fromJson(inputs.node-version) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # The pnpm version comes from `packageManager` in the caller's package.json.
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        if: inputs.playwright-browsers != ''
+        uses: cyberuni-agent/.github/.github/actions/setup-playwright@v1
+        with:
+          browsers: ${{ inputs.playwright-browsers }}
+
+      - run: pnpm run "$SCRIPT"
+        env:
+          SCRIPT: ${{ inputs.script }}
+
+      # One upload, from one leg, keyed on an `lts/*` alias by default. A pinned Node
+      # number here goes stale: cyberuni's condition read `== 18` against a matrix
+      # without 18, and coverage silently never uploaded.
+      #
+      # OIDC instead of tokenless upload. A tokenless upload that Codecov rejects
+      # still reports a green step, so a green step proves nothing. Fork PRs get no
+      # OIDC token, so their upload fails, which is expected.
+      #
+      # Coverage never gates a merge: the tests are the gate.
+      - name: Upload coverage
+        if: inputs.codecov && matrix.os == 'ubuntu-latest' && matrix.node-version == inputs.codecov-node-version
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        continue-on-error: true
+        with:
+          use_oidc: true
+
+  # Require this one context instead of every matrix leg, so changing the matrix
+  # never touches branch protection. Callers see it as `<caller job> / all-checks`.
+  all-checks:
+    needs: [verify]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: All checks passed
+        run: test "$RESULT" = success
+        env:
+          RESULT: ${{ needs.verify.result }}

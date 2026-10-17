@@ -1,0 +1,23 @@
+{
+	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
+	"extends": ["github>unional/renovate-preset"],
+	"platformAutomerge": true,
+	"packageRules": [
+		{
+			"description": "Auto-merge non-major updates. They land on main and reach consumers only when a release moves the v1 alias, so a bad bump is caught before anyone takes it.",
+			"matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+			"automerge": true
+		},
+		{
+			"description": "Our own refs (@v1) are the line alias, moved by cutting a release, never by a bump.",
+			"matchPackageNames": ["cyberuni-agent/.github"],
+			"enabled": false
+		},
+		{
+			"description": "changesets/action's major is paired with consumers' @changesets/cli major. Moving it is a breaking release (v2 of this repo), not a dependency bump.",
+			"matchDepNames": ["changesets/action"],
+			"matchUpdateTypes": ["major"],
+			"enabled": false
+		}
+	]
+}

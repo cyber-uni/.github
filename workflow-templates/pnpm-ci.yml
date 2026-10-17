@@ -1,0 +1,17 @@
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [$default-branch]
+  # A merge-queue branch fires neither `pull_request` nor the default-branch `push`.
+  merge_group:
+
+permissions:
+  contents: read
+  # Lets the Codecov upload authenticate with OIDC.
+  id-token: write
+
+jobs:
+  # Require `verify / all-checks` in the branch ruleset.
+  verify:
+    uses: cyberuni-agent/.github/.github/workflows/pnpm-verify.yml@v1

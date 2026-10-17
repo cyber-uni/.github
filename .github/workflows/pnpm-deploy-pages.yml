@@ -1,0 +1,81 @@
+name: pnpm-deploy-pages
+# Builds a static site with pnpm and deploys it to GitHub Pages through the Pages
+# artifact flow. The repo's Pages source must be set to "GitHub Actions".
+#
+# Caller permissions: `contents: read`, `pages: write`, `id-token: write`.
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        type: string
+        required: false
+        default: lts/*
+      build-script:
+        description: Builds the site, e.g. `pnpm run build` or `pnpm --filter website build`
+        type: string
+        required: false
+        default: pnpm run build
+      path:
+        description: The built site directory, relative to the repo root
+        type: string
+        required: true
+    outputs:
+      page-url:
+        description: The deployed site URL
+        value: ${{ jobs.deploy.outputs.page-url }}
+
+# One deployment at a time, and never cancel one halfway.
+concurrency:
+  group: pages-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - run: eval "$BUILD_SCRIPT"
+        env:
+          BUILD_SCRIPT: ${{ inputs.build-script }}
+
+      # A wrong `path` must fail here rather than deploy an empty site. Precedent:
+      # justland/just-web.github.io published an empty gh-pages branch on every
+      # green deploy until 2026-09-03.
+      - name: Check the site was built
+        run: |
+          if [ ! -d "$SITE" ] || [ -z "$(ls -A "$SITE")" ]; then
+            echo "::error::'$SITE' is missing or empty after the build. Set the 'path' input to the build output directory."
+            exit 1
+          fi
+        env:
+          SITE: ${{ inputs.path }}
+
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: ${{ inputs.path }}
+
+  deploy:
+    needs: [build]
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page-url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

@@ -1,0 +1,7 @@
+{
+	"name": "pnpm CI",
+	"description": "Run the verify script across an OS and Node matrix, with one required all-checks context.",
+	"iconName": "octicon check-circle",
+	"categories": ["TypeScript", "JavaScript"],
+	"filePatterns": ["pnpm-lock\\.yaml$"]
+}
