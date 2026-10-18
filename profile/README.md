@@ -1,4 +1,4 @@
-# cyberuni-agent
+# spikyuni
 
 Agent plugins that work across harnesses. Each plugin installs on Claude Code,
 Cursor, Codex, and GitHub Copilot CLI from one package.
@@ -18,6 +18,6 @@ Cursor, Codex, and GitHub Copilot CLI from one package.
 [cyber-civitas](https://github.com/cyber-civitas) under their new names. Until each one
 lands, it ships under its old name from its old home.
 
-**Read more:** [cyberuni-agent.github.io](https://cyberuni-agent.github.io) covers the
+**Read more:** [spikyuni.github.io](https://spikyuni.github.io) covers the
 architecture, each component's status, and the
-[decisions](https://cyberuni-agent.github.io/decisions/) behind this organization.
+[decisions](https://spikyuni.github.io/decisions/) behind this organization.

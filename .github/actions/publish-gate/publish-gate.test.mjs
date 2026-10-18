@@ -67,6 +67,6 @@ test('the cyber-civitas packages are first-party', () => {
 })
 
 test('the uni-* agent plugins are first-party', () => {
-	for (const name of ['uni-fleet', 'uni-legion', 'uni-sdd', 'uni-mux', 'uni-asana', 'uni-figma', 'uni-slack', 'uni-research', 'uni-agent-kit', '@cyberuni-agent/fixture']) assert.equal(isAllowed(name, FIRST_PARTY), true, name)
+	for (const name of ['uni-fleet', 'uni-legion', 'uni-sdd', 'uni-mux', 'uni-asana', 'uni-figma', 'uni-slack', 'uni-research', 'uni-agent-kit', '@spikyuni/fixture']) assert.equal(isAllowed(name, FIRST_PARTY), true, name)
 	assert.equal(isAllowed('uni-fleet-evil', FIRST_PARTY), false)
 })

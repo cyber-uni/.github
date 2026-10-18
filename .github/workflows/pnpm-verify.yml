@@ -66,7 +66,7 @@ jobs:
 
       - name: Install Playwright browsers
         if: inputs.playwright-browsers != ''
-        uses: cyberuni-agent/.github/.github/actions/setup-playwright@v1
+        uses: spikyuni/.github/.github/actions/setup-playwright@v1
         with:
           browsers: ${{ inputs.playwright-browsers }}
 

@@ -14,4 +14,4 @@ permissions:
 jobs:
   # Require `verify / all-checks` in the branch ruleset.
   verify:
-    uses: cyberuni-agent/.github/.github/workflows/pnpm-verify.yml@v1
+    uses: spikyuni/.github/.github/workflows/pnpm-verify.yml@v1

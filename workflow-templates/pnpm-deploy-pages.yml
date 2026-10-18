@@ -8,7 +8,7 @@ permissions: {}
 
 jobs:
   deploy:
-    uses: cyberuni-agent/.github/.github/workflows/pnpm-deploy-pages.yml@v1
+    uses: spikyuni/.github/.github/workflows/pnpm-deploy-pages.yml@v1
     permissions:
       contents: read
       pages: write

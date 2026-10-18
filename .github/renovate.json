@@ -10,7 +10,7 @@
 		},
 		{
 			"description": "Our own refs (@v1) are the line alias, moved by cutting a release, never by a bump.",
-			"matchPackageNames": ["cyberuni-agent/.github"],
+			"matchPackageNames": ["spikyuni/.github"],
 			"enabled": false
 		},
 		{

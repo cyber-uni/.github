@@ -36,7 +36,7 @@ export const FIRST_PARTY = [
 	'@mocktomata/*',
 	'@cyberuni/*',
 	'@cyber-civitas/*',
-	'@cyberuni-agent/*',
+	'@spikyuni/*',
 	// The uni-* agent plugins, unscoped (cyber-civitas decision 0006).
 	'uni-fleet',
 	'uni-legion',
