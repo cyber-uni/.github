@@ -9,7 +9,7 @@ jobs:
   # Register this file (release.yml) as the trusted publisher of every package
   # at npmjs.com/package/<name>/access before the first release.
   release:
-    uses: cyberuni-agent/.github/.github/workflows/pnpm-release.yml@v1
+    uses: spikyuni/.github/.github/workflows/pnpm-release.yml@v1
     permissions:
       contents: write
       pull-requests: write

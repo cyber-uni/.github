@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping. This guide applies to every cyberuni-agent repository unless
+Thanks for helping. This guide applies to every spikyuni repository unless
 the repository has its own `CONTRIBUTING.md`.
 
 ## Before you start

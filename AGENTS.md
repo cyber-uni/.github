@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This is the cyberuni-agent organization's `.github` repository. It holds three
+This is the spikyuni organization's `.github` repository. It holds three
 things, and GitHub reads each from a fixed path:
 
 - `profile/README.md`: the organization profile page.
@@ -23,7 +23,7 @@ it, and how a release is cut. Keep it the one home for those facts.
 - **Pin every external `uses:` to a full commit SHA**, with the tag as a trailing
   comment: `uses: actions/checkout@<sha> # v7.0.1`. Docker images pin a digest.
   `test/pins.test.mjs` fails otherwise.
-- **Refer to this repo's own actions by the line alias**, `cyberuni-agent/.github/.github/actions/<name>@v1`.
+- **Refer to this repo's own actions by the line alias**, `spikyuni/.github/.github/actions/<name>@v1`.
   A reusable workflow cannot use a relative `./` path: it resolves against the
   caller's checkout. Never `@main`.
 - **Never interpolate `${{ inputs.* }}` into a `run:` script.** Pass it through
