@@ -11,7 +11,7 @@ import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 
 const LINE = 'v1'
-const SELF = 'spikyuni/.github/'
+const SELF = 'cyber-uni/.github/'
 
 function yamlFiles(dir) {
 	return readdirSync(dir, { withFileTypes: true, recursive: true })

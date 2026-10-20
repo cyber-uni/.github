@@ -1,6 +1,6 @@
-# spikyuni/.github
+# cyber-uni/.github
 
-The spikyuni organization's settings repository:
+The cyber-uni organization's settings repository:
 
 - the [organization profile](profile/README.md),
 - [default community health files](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file)
@@ -21,8 +21,8 @@ Each workflow's inputs and their defaults are documented in its `workflow_call`
 block. The caller must grant the listed permissions: a called workflow cannot
 exceed them, and GitHub refuses to start one that asks for more.
 
-The quickest start is **Actions → New workflow** in any spikyuni repository,
-where the starter workflows appear under *By spikyuni*. By hand:
+The quickest start is **Actions → New workflow** in any cyber-uni repository,
+where the starter workflows appear under *By cyber-uni*. By hand:
 
 ```yaml
 # .github/workflows/ci.yml
@@ -37,7 +37,7 @@ permissions:
   id-token: write
 jobs:
   verify:
-    uses: spikyuni/.github/.github/workflows/pnpm-verify.yml@v1
+    uses: cyber-uni/.github/.github/workflows/pnpm-verify.yml@v1
 ```
 
 ```yaml
@@ -49,7 +49,7 @@ on:
 permissions: {}
 jobs:
   release:
-    uses: spikyuni/.github/.github/workflows/pnpm-release.yml@v1
+    uses: cyber-uni/.github/.github/workflows/pnpm-release.yml@v1
     permissions:
       contents: write
       pull-requests: write
@@ -114,7 +114,7 @@ git tag -f v1 v1.2.0 && git push -f origin v1
 The last line moves the alias. Without it, nobody pinning `@v1` gets the release.
 
 The workflows call this repository's own actions as
-`spikyuni/.github/.github/actions/<name>@v1`, because a reusable workflow
+`cyber-uni/.github/.github/actions/<name>@v1`, because a reusable workflow
 resolves `./` against the caller's checkout. A consumer on `@v1` therefore runs
 the actions from `v1` too. A new major updates these refs in the same release.
 
